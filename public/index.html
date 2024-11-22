@@ -20,6 +20,8 @@
 
     <!-- Game Section -->
     <section id="gameUI" class="hidden mx-auto container max-screen">
+        <progress id="progressBar" value="0" max="100" class="w-full h-3 mb-4"></progress>
+        <p id="countdownText" class="text-center text-xl font-semibold mb-2">Turn: 0:00</p> 
         <h1 class="mx-auto text-2xl my-5 text-center" x-data="{ message: 'Waiting for players...' }" x-text="message"></h1>
         <div class="mx-auto flex flex-cols align-center justify-center">
             <div class="my-5 bg-grey-300 shadow-md rounded-md bg-white">
@@ -29,9 +31,7 @@
         <button id="endTurnButton" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 mx-auto block">
             End Turn
         </button>
-        <ul id="playerList" class="mt-5 max-w-md mx-auto bg-white p-4 shadow-md rounded">
-            <!-- Player list dynamically populated -->
-        </ul>
+        <ul id="playerList" class="list-disc pl-5 mt-4"></ul>
     </section>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
