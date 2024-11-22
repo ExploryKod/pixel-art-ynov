@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <title>Pixel War</title>
-    <style>
-        #canvas { border: 1px solid black; }
-    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<canvas id="canvas" width="500" height="500"></canvas>
+<body class="bg-gray-100">
+
+    <section class="mx-auto container max-screen">
+        <h1 class="mx-auto text-2xl my-5 text-center" x-data="{ message: 'I ❤️ Pixel Art' }" x-text="message"></h1>
+        <div class="mx-auto flex flex-cols align-center justify-center">
+            <div class="my-5 bg-grey-300 shadow-md rounded-md bg-white">
+            <canvas class="mx-auto w-full h-full"  id="canvas" width="500" height="500"></canvas>
+        </div>
+
+    </section>
+
 <script src="./script.js"></script>
 </body>
 </html>
