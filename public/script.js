@@ -11,13 +11,27 @@ const game = document.querySelector("#game");
 const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
+const colorInput = document.getElementById('color');
 const gameSection = document.getElementById('game');
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     const username = pseudoInput.value.trim();
+    const color = colorInput.value.trim();
+
+    if(!username) {
+        return
+    }
+
+    if(!color) {
+        return
+    }
     
-    if (username) {
+    if (username && color) {
+
+        localStorage.setItem("current-player", username);
+        localStorage.setItem("points", 0);
+        localStorage.setItem("color", color);
 
         ws.send(JSON.stringify({
             action: 'join',
@@ -57,8 +71,22 @@ ws.onmessage = (event) => {
                 break;
             case 'draw':
                 // Un seul pixel est dessiné
-                ctx.fillStyle = response.data.color;
-                ctx.fillRect(response.data.x, response.data.y, 10, 10);
+                const { x, y, color, player } = response.data;
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 10, 10);
+                console.log("data on placement", response.data)
+                console.log(`Pixel placed by ${player.username} at (${x}, ${y}) with color ${player.color}`);
+                
+                Toastify({
+                    text: `Pixel placed by ${player.username} at ${x}, ${y}`,
+                    duration: 3000,
+                    gravity: "top",
+                    position: 'right',
+                    style: {
+                        background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                    }
+                }).showToast();
+
             case 'init':
                 // (Re)initialise le plateau de jeu
                 Object.values(response.data).forEach(p => {
@@ -139,17 +167,28 @@ canvas.addEventListener('click', (event) => {
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     const id = `${x},${y}`;
-    const isPlayer1 = game.classList.contains("player-1");
- 
+    const currentPlayer = localStorage.getItem("current-player");
+    const points = localStorage.getItem("points");
+    const color = localStorage.getItem("color");
     const pixelData = { 
         action: 'draw', 
-        data: { id, x, y, color: isPlayer1 ? 'red' : 'black'}, 
+        data: { id, x, y, color: 'green', player: currentPlayer, points: points, color: color}, 
         id: pageId 
     };
 
     if (ws.readyState === WebSocket.OPEN) {
+        console.log("send pixel data", pixelData);
         ws.send(JSON.stringify(pixelData));
     } else {
+        Toastify({
+            text: "Le jeu n'est pas ouvert, erreur de connexion.",
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            style: {
+                background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+            }
+        }).showToast();
         console.error('WebSocket is not open:', ws.readyState);
     }
 });

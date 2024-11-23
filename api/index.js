@@ -7,35 +7,11 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const path = require('path');
 
-// Serve static files from the "public" directory
 app.use(express.static('public'));
 const connectedPlayers = new Map();
 
 let pixels = {};
 
-// wss.on('connection', (ws) => {
-//     ws.send(JSON.stringify({ action: 'init', data: pixels }));
-
-//     ws.on('message', (message) => {
-//         const { action, data, id } = JSON.parse(message);
-//         console.log(action, data, id);
-//         if (action === 'draw') {
-//             pixels[data.id] = data;
-//             wss.clients.forEach(client => {
-//                 if (client.readyState === WebSocket.OPEN) {
-//                     client.send(JSON.stringify({ action, data }));
-//                 }
-//             });
-//         }
-//     });
-// });
-
-
-// Dans api/index.js, modifiez le code pour ajouter la gestion des déconnexions :
-
-
-
-// Fonction pour diffuser la liste des joueurs à tous les clients
 function broadcastPlayersList() {
     const playersList = Array.from(connectedPlayers.values()).map(({ player }) => ({
         id: player.id,
@@ -53,7 +29,6 @@ function broadcastPlayersList() {
     });
 }
 
-// Fonction pour vérifier périodiquement les connexions
 function heartbeat() {
     this.isAlive = true;
 }
@@ -62,7 +37,6 @@ wss.on('connection', (ws) => {
     ws.isAlive = true;
     ws.on('pong', heartbeat);
 
-    // Envoyer la liste initiale des joueurs
     ws.send(JSON.stringify({ 
         action: 'playersList', 
         data: Array.from(connectedPlayers.values()).map(({ player }) => player)
@@ -70,12 +44,15 @@ wss.on('connection', (ws) => {
 
     ws.send(JSON.stringify({ action: 'init', data: pixels }));
 
-    ws.on('message', /**
+    ws.on('message', 
+        
+    /**
      * Description placeholder
      *
      * @param {*} message
      */
     (message) => {
+        console.log("message", message);
         const { action, data, id } = JSON.parse(message);
         
         if (action === 'join') {
@@ -89,7 +66,7 @@ wss.on('connection', (ws) => {
                     success: false,
                     message: 'Ce pseudo est déjà pris'
                 }));
-                console.log("connexion", username)
+                console.log("connexion pseudo déjà pris", username)
                 return;
             }
 
@@ -114,15 +91,30 @@ wss.on('connection', (ws) => {
             broadcastPlayersList();
         }
 
+             // Fetch player info
+             const player = Array.from(connectedPlayers.values()).find(({ ws }) => ws === ws);
+             console.log("player ws", player)
+ 
+         if (!player) {
+             console.error('Player not found for drawing action');
+             return;
+         }
+         console.log("state of data ", data)
+         const drawData = {
+            ...data,
+            player: { id: player.player.id, username: data.player, color: data.color }
+        };
         
         if (action === 'draw') {
-            pixels[data.id] = data;
+            console.log("draw data", drawData)
+            pixels[data.id] = drawData;
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ action, data }));
+                    client.send(JSON.stringify({ action, data: drawData }));
                 }
             });
         }
+        console.log(`Pixel placed by ${data.player} with color ${data.color}:`, data);
     });
 
     ws.on('close', () => {
