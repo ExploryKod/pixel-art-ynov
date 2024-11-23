@@ -10,60 +10,128 @@ const ws = new WebSocket(wsUrl);
 const game = document.querySelector("#game");
 const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
+const pseudoInput = document.getElementById('pseudo');
+const gameSection = document.getElementById('game');
 
-let players = getPlayers()
+form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = pseudoInput.value.trim();
+    
+    if (username) {
 
-if(game && players.length > 0){
-    localStorage.removeItem('players', JSON.stringify(players));
-}
-
-form.addEventListener('submit', (event) => {
-    event.preventDefault();
-
-    const pseudoInput = document.getElementById('pseudo');
-    const pseudo = pseudoInput.value.trim();
-
-    if (!pseudo) {
-        return;
+        ws.send(JSON.stringify({
+            action: 'join',
+            data: { username }
+        }));
     }
-
-    // Register the player in localStorage
-    const playerId = Date.now().toString(); // Unique ID for each player
-    players.push({ id: playerId, pseudo: pseudo });
-    savePlayers(players);
-    pseudoInput.value = "";
-    players = getPlayers()
-    if(players.length > 1) {
-        // Hide the form and show the game UI
-        form.classList.add('opacity-50');
-        game.classList.remove('opacity-50');
-        setInterval(start, 3500);
-    }
-   
 });
 
+// ws.onmessage = (event) => {
+//     try {
+//         const { action, data } = JSON.parse(event.data);
+        // if (action === 'draw') {
+        //     // Draw a single pixel
+        //     ctx.fillStyle = data.color;
+        //     ctx.fillRect(data.x, data.y, 10, 10);
+        // } else if (action === 'init') {
+        //     // Initialize the canvas with existing pixels
+        //     Object.values(data).forEach(p => {
+        //         ctx.fillStyle = p.color;
+        //         ctx.fillRect(p.x, p.y, 10, 10);
+        //     });
+        // }
+//     } catch (error) {
+//         console.error('Error processing WebSocket message:', error);
+//     }
+// };
+ws.onmessage = (event) => {
+    try {
+        const response = JSON.parse(event.data);
+        
+        switch (response.action) {
+            case 'joinResponse':
+                handleJoinResponse(response);
+                break;
+            case 'playersList':
+                updatePlayersList(response.data);
+                break;
+            case 'draw':
+                // Un seul pixel est dessiné
+                ctx.fillStyle = response.data.color;
+                ctx.fillRect(response.data.x, response.data.y, 10, 10);
+            case 'init':
+                // (Re)initialise le plateau de jeu
+                Object.values(response.data).forEach(p => {
+                    ctx.fillStyle = p.color;
+                    ctx.fillRect(p.x, p.y, 10, 10);
+                });
+        }
+    } catch (error) {
+        console.error('Erreur dans la gestion du message websocket:', error);
+        Toastify({
+            text: "Erreur de connexion au jeu",
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            style: {
+                background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+            }
+        }).showToast();
+    }
+};
 
-function getPlayers() {
-    const playersData = localStorage.getItem('players');
-    return playersData ? JSON.parse(playersData) : [];
+// Gérer la réponse de connexion
+function handleJoinResponse(response) {
+    if (response.success) {
+
+        Toastify({
+            text: response.message,
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            style: {
+                background: "linear-gradient(to right, #00b09b, #96c93d)",
+            }
+        }).showToast();
+
+        gameSection.classList.remove('play');
+   
+        form.style.display = 'none';
+  
+        localStorage.setItem('playerId', response.playerId);
+    } else {
+
+        Toastify({
+            text: response.message,
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            style: {
+                background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+            }
+        }).showToast();
+    }
 }
 
-function savePlayers(players) {
-    localStorage.setItem('players', JSON.stringify(players));
-}
+// Mettre à jour la liste des joueurs (à implémenter selon vos besoins)
+function updatePlayersList(players) {
+    console.log('Joueurs connectés:', players);
 
+    const playerTemplate = document.querySelector('#player-template');
+    playerTemplate.innerHTML = "";
 
-function start() {
-  game.classList.toggle("on");
-  form.classList.toggle("opacity-50");
+    if (playerTemplate && players.length > 0) {
+        players.forEach(player => {
 
-  if(game.classList.contains("player-2")) {
-    game.classList.remove("player-2");
-    game.classList.add("player-1");
-  } else {
-    game.classList.remove("player-1");
-    game.classList.add("player-2");
-  }
+            const playerElement = document.createElement('span');
+            playerElement.classList.add('player-name', 'text-sm', 'font-medium', 'my-2', 'rounded-full', 'bg-gray-100', 'py-2', 'px-3');
+            
+
+            playerElement.textContent = player.username;
+
+            playerTemplate.append(playerElement);
+        });
+    }
 }
 
 canvas.addEventListener('click', (event) => {
@@ -73,14 +141,12 @@ canvas.addEventListener('click', (event) => {
     const id = `${x},${y}`;
     const isPlayer1 = game.classList.contains("player-1");
  
-    // Prepare pixel data
     const pixelData = { 
         action: 'draw', 
         data: { id, x, y, color: isPlayer1 ? 'red' : 'black'}, 
         id: pageId 
     };
 
-    // Send pixel data if WebSocket is open
     if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify(pixelData));
     } else {
@@ -88,33 +154,28 @@ canvas.addEventListener('click', (event) => {
     }
 });
 
-// Handle incoming WebSocket messages
-ws.onmessage = (event) => {
-    try {
-        const { action, data } = JSON.parse(event.data);
-        if (action === 'draw') {
-            // Draw a single pixel
-            ctx.fillStyle = data.color;
-            ctx.fillRect(data.x, data.y, 10, 10);
-        } else if (action === 'init') {
-            // Initialize the canvas with existing pixels
-            Object.values(data).forEach(p => {
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, 10, 10);
-            });
-        }
-    } catch (error) {
-        console.error('Error processing WebSocket message:', error);
-    }
-};
-
-// Handle WebSocket closure
 ws.onclose = (event) => {
     console.log('WebSocket is closed:', event.reason);
+    Toastify({
+        text: "Fin de la connexion au jeu",
+        duration: 3000,
+        gravity: "top",
+        position: 'right',
+        style: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+    }).showToast();
 };
 
-// Handle WebSocket errors
 ws.onerror = (error) => {
-    console.error('WebSocket error:', error);
+    console.error('WebSocket encountered an error:', error);
+    Toastify({
+        text: "Erreur de connexion au jeu",
+        duration: 3000,
+        gravity: "top",
+        position: 'right',
+        style: {
+            background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+        }
+    }).showToast();
 };
-
