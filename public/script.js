@@ -10,10 +10,13 @@ const ws = new WebSocket(wsUrl);
 const game = document.querySelector("#game");
 const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
+
 let players = getPlayers()
+
 if(game && players.length > 0){
     localStorage.removeItem('players', JSON.stringify(players));
 }
+
 form.addEventListener('submit', (event) => {
     event.preventDefault();
 
