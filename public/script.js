@@ -3,11 +3,68 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 let pageId = crypto.randomUUID(); 
-console.log("Page ID:", pageId);
 
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const wsUrl = `${protocol}://${window.location.host}`;
 const ws = new WebSocket(wsUrl);
+const game = document.querySelector("#game");
+const form = document.querySelector('#form')
+const subText = document.querySelector(".subtext")
+let players = getPlayers()
+if(game && players.length > 0){
+    localStorage.removeItem('players', JSON.stringify(players));
+}
+form.addEventListener('submit', (event) => {
+    event.preventDefault();
+
+    const pseudoInput = document.getElementById('pseudo');
+    const pseudo = pseudoInput.value.trim();
+
+    if (!pseudo) {
+        return;
+    }
+
+    // Register the player in localStorage
+    const playerId = Date.now().toString(); // Unique ID for each player
+    players.push({ id: playerId, pseudo: pseudo });
+    savePlayers(players);
+    pseudoInput.value = "";
+    players = getPlayers()
+    if(players.length > 1 && players.length < 3) {
+        // Hide the form and show the game UI
+        form.classList.add('hidden');
+        game.classList.remove('opacity-50');
+        game.classList.remove('pointer-none');
+        setInterval(start, 3500);
+    }
+   
+});
+
+
+function getPlayers() {
+    const playersData = localStorage.getItem('players');
+    return playersData ? JSON.parse(playersData) : [];
+}
+
+function savePlayers(players) {
+    localStorage.setItem('players', JSON.stringify(players));
+}
+
+
+function start() {
+  game.classList.toggle("on");
+  game.classList.toggle("pointer-auto");
+  form.classList.toggle("opacity-50");
+
+  if(game.classList.contains("player-2")) {
+    game.classList.remove("player-2");
+    game.classList.add("player-1");
+    game.classList.add('pointer-none');
+  } else {
+    game.classList.remove("player-1");
+    game.classList.add("player-2");
+  }
+}
 
 canvas.addEventListener('click', (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -60,3 +117,4 @@ ws.onclose = (event) => {
 ws.onerror = (error) => {
     console.error('WebSocket error:', error);
 };
+
