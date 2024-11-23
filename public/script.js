@@ -30,11 +30,10 @@ form.addEventListener('submit', (event) => {
     savePlayers(players);
     pseudoInput.value = "";
     players = getPlayers()
-    if(players.length > 1 && players.length < 3) {
+    if(players.length > 1) {
         // Hide the form and show the game UI
-        form.classList.add('hidden');
+        form.classList.add('opacity-50');
         game.classList.remove('opacity-50');
-        game.classList.remove('pointer-none');
         setInterval(start, 3500);
     }
    
@@ -53,13 +52,11 @@ function savePlayers(players) {
 
 function start() {
   game.classList.toggle("on");
-  game.classList.toggle("pointer-auto");
   form.classList.toggle("opacity-50");
 
   if(game.classList.contains("player-2")) {
     game.classList.remove("player-2");
     game.classList.add("player-1");
-    game.classList.add('pointer-none');
   } else {
     game.classList.remove("player-1");
     game.classList.add("player-2");

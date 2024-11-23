@@ -16,7 +16,26 @@
         .on {
             background-color: #ffff99;
             box-shadow: 1px 1px 100px 10px #ffffb3;
-          }          
+          } 
+
+          .play {
+            opacity: 0.2;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+          }
+
+          div.player-1 {
+            opacity: 1;
+            pointer-events: auto !important;
+            background-color: rgb(4, 209, 209);
+          }
+
+          div.player-2 {
+            opacity: 1;
+            pointer-events: auto !important;
+            background-color: rgb(164, 163, 216);
+          }
+          
     </style>
 </head>
 <body class="bg-gray-100">
@@ -37,7 +56,7 @@
               
         </section>
         <section class="mx-auto flex flex-cols align-center justify-center">
-            <div id="game" class="my-5 shadow-md rounded-md p-5">
+            <div id="game" class="my-5 shadow-md rounded-md p-5 play">
                 <canvas class="mx-auto w-full h-full"  id="canvas" width="500" height="500"></canvas>
             </div>
         </section>
