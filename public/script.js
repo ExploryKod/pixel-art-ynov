@@ -15,9 +15,7 @@ canvas.addEventListener('click', (event) => {
     const y = event.clientY - rect.top;
     const id = `${x},${y}`;
     const isPlayer1 = game.classList.contains("player-1");
-    const isPlayer2 = game.classList.contains("player-2");
-
-
+ 
     // Prepare pixel data
     const pixelData = { 
         action: 'draw', 

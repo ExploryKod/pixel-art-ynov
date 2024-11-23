@@ -4,6 +4,13 @@
 const game = document.querySelector("#game");
 const form = document.querySelector('#form')
 
+window.addEventListener('load', () =>{
+    let players = getPlayers();
+    if(game && players.length > 0){
+        localStorage.removeItem('players', JSON.stringify(players));
+    }
+})
+
 form.addEventListener('submit', (event) => {
     event.preventDefault();
 
@@ -11,7 +18,6 @@ form.addEventListener('submit', (event) => {
     const pseudo = pseudoInput.value.trim();
 
     if (!pseudo) {
-        makeToast2('Please enter a valid pseudo!');
         return;
     }
 
