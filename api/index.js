@@ -85,7 +85,7 @@ wss.on('connection', (ws) => {
                 action: 'joinResponse',
                 success: true,
                 playerId: playerId,
-                message: 'Connexion réussie!'
+                message: `Bienvenue ${playerData.player.username} ! `
             }));
             console.log("connexion réussie", playerId)
             broadcastPlayersList();
@@ -100,6 +100,22 @@ wss.on('connection', (ws) => {
              return;
          }
          console.log("state of data ", data)
+
+         const existingPixel = pixels[data.id];
+         if (existingPixel) {
+             wss.clients.forEach(client => {
+                 if (client.readyState === WebSocket.OPEN && existingPixel.player.id === client.player.id) {
+                     client.send(JSON.stringify({
+                         action: 'overwrite',
+                         data: { x: data.x, y: data.y, by: data.player }
+                     }));
+                 }
+             });
+             console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
+         }
+
+
+
          const drawData = {
             ...data,
             player: { id: player.player.id, username: data.player, color: data.color }
@@ -107,6 +123,13 @@ wss.on('connection', (ws) => {
         
         if (action === 'draw') {
             console.log("draw data", drawData)
+
+            const existingPixel = pixels[data.id];
+
+            if (existingPixel) {
+                console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
+            }
+
             pixels[data.id] = drawData;
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {

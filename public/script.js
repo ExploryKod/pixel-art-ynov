@@ -12,7 +12,6 @@ const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
 const colorInput = document.getElementById('color');
-const gameSection = document.getElementById('game');
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -40,24 +39,7 @@ form.addEventListener('submit', (e) => {
     }
 });
 
-// ws.onmessage = (event) => {
-//     try {
-//         const { action, data } = JSON.parse(event.data);
-        // if (action === 'draw') {
-        //     // Draw a single pixel
-        //     ctx.fillStyle = data.color;
-        //     ctx.fillRect(data.x, data.y, 10, 10);
-        // } else if (action === 'init') {
-        //     // Initialize the canvas with existing pixels
-        //     Object.values(data).forEach(p => {
-        //         ctx.fillStyle = p.color;
-        //         ctx.fillRect(p.x, p.y, 10, 10);
-        //     });
-        // }
-//     } catch (error) {
-//         console.error('Error processing WebSocket message:', error);
-//     }
-// };
+
 ws.onmessage = (event) => {
     try {
         const response = JSON.parse(event.data);
@@ -108,7 +90,6 @@ ws.onmessage = (event) => {
     }
 };
 
-// Gérer la réponse de connexion
 function handleJoinResponse(response) {
     if (response.success) {
 
@@ -122,7 +103,7 @@ function handleJoinResponse(response) {
             }
         }).showToast();
 
-        gameSection.classList.remove('play');
+        game.classList.remove('play');
    
         form.style.display = 'none';
   
@@ -141,24 +122,53 @@ function handleJoinResponse(response) {
     }
 }
 
-// Mettre à jour la liste des joueurs (à implémenter selon vos besoins)
 function updatePlayersList(players) {
     console.log('Joueurs connectés:', players);
 
     const playerTemplate = document.querySelector('#player-template');
+    const playerTitle = document.querySelector('.player-title');
     playerTemplate.innerHTML = "";
 
     if (playerTemplate && players.length > 0) {
-        players.forEach(player => {
+        
+        playerTitle.classList.remove("hidden");
 
-            const playerElement = document.createElement('span');
-            playerElement.classList.add('player-name', 'text-sm', 'font-medium', 'my-2', 'rounded-full', 'bg-gray-100', 'py-2', 'px-3');
+        players.forEach((player, index) => {
+
+            if(index < 4) {
+                const playerElement = document.createElement('span');
+                playerElement.classList.add('player-name', 'text-sm', 'font-medium', 'my-2', 'rounded-full', 'bg-gray-100', 'py-2', 'px-3');
+                playerElement.textContent = player.username;
+                playerTemplate.append(playerElement);
+            }
             
-
-            playerElement.textContent = player.username;
-
-            playerTemplate.append(playerElement);
         });
+
+        if(players.length > 2 && players.length < 4) {
+            Toastify({
+                text: "Minimum de joueur atteint: Une partie peut commencer !",
+                duration: 3000,
+                gravity: "top",
+                position: 'right',
+                style: {
+                    background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }
+            }).showToast();
+        }
+
+        if(players.length === 3) {
+            Toastify({
+                text: "Maximum de 3 joueurs atteint, la partie commence !",
+                duration: 3000,
+                gravity: "top",
+                position: 'center',
+                style: {
+                    background: "linear-gradient(to right, #ff5f6d, #ffc371)",
+                }
+            }).showToast();
+            game.classList.add('play');
+            form.style.display = 'none';
+        }
     }
 }
 
