@@ -7,6 +7,24 @@ const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 const path = require('path');
 
+const { Server } = require("socket.io");
+const io = new Server(server, {
+    cors: {
+      origin: ["http://localhost:4080"]
+    }
+  });
+
+app.use(express.static('public'));
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+  });
+
+  io.on('connection', (socket) => {
+    socket.on('chat message', (msg) => {
+      io.emit('chat message', msg);
+    });
+  });
+
 app.use(express.static('public'));
 const connectedPlayers = new Map();
 
@@ -32,15 +50,7 @@ function broadcastPlayersList() {
 function heartbeat() {
     this.isAlive = true;
 }
-const io = socket(server);
 
-io.on("connection", function (socket) {
-  console.log("Made socket connection");
-});
-
-io.on("disconnect", function (socket) {
-  console.log("User disconnected");
-});
 wss.on('connection', (ws) => {
     ws.isAlive = true;
     ws.on('pong', heartbeat);

@@ -1,4 +1,3 @@
-
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
@@ -12,6 +11,26 @@ const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
 const colorInput = document.getElementById('color');
+
+const socketI = io("http://localhost:4080");     
+const chatMessages = document.getElementById('chat-messages');
+const chatForm = document.getElementById('chat-form');
+const chatInput = document.getElementById('chat-input');
+
+chatForm.addEventListener('submit', function(e) {
+e.preventDefault();
+if (chatInput.value) {
+    socketI.emit('chat message', chatInput.value);
+    chatInput.value = '';
+}
+});
+
+socketI.on('chat message', function(msg) {
+var item = document.createElement('li');
+item.textContent = msg;
+chatMessages.appendChild(item);
+window.scrollTo(0, document.body.scrollHeight);
+});
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -36,7 +55,7 @@ form.addEventListener('submit', (e) => {
             action: 'join',
             data: { username }
         }));
-    }
+  }
 });
 
 
@@ -58,13 +77,13 @@ ws.onmessage = (event) => {
                 ctx.fillRect(x, y, 10, 10);
                 console.log("data on placement", response.data)
                 console.log(`Pixel placed by ${player.username} at (${x}, ${y}) with color ${player.color}`);
-                
-                Toastify({
+
+    Toastify({
                     text: `Pixel placed by ${player.username} at ${x}, ${y}`,
-                    duration: 3000,
-                    gravity: "top",
-                    position: 'right',
-                    style: {
+        duration: 3000,
+        gravity: "top",
+        position: 'right',
+        style: {
                         background: "linear-gradient(to right, #ff5f6d, #ffc371)",
                     }
                 }).showToast();
@@ -85,9 +104,9 @@ ws.onmessage = (event) => {
             position: 'right',
             style: {
                 background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-            }
-        }).showToast();
-    }
+        }
+    }).showToast();
+}
 };
 
 function handleJoinResponse(response) {
@@ -130,7 +149,7 @@ function updatePlayersList(players) {
     playerTemplate.innerHTML = "";
 
     if (playerTemplate && players.length > 0) {
-        
+
         playerTitle.classList.remove("hidden");
 
         players.forEach((player, index) => {

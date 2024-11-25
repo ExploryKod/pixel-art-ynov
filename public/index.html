@@ -8,6 +8,17 @@
     <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <style>
+
+
+        .chat #chat-form { background: rgba(0, 0, 0, 0.15); padding: 0.25rem; position: fixed; top: 130px; left: 0; right: 50%; transform: translateX(50%); display: flex; height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+        .chat #chat-input { border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem; }
+        .chat #chat-input:focus { outline: none; }
+        .chat #chat-form > .chat-button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+
+        .chat #chat-messages { list-style-type: none; margin: 0; padding: 0; }
+        .chat #chat-messages > li { padding: 0.5rem 1rem; }
+        .chat #chat-messages > li:nth-child(odd) { background: #efefef; }
+
         #game {
             box-shadow: 1px 1px 20px 10px gray;
             transition: all 0.5s ease-in-out;
@@ -75,21 +86,8 @@
                 </form>
             </section>
 
-            <section>
-                <div class="inbox__messages">
-                 <div class="messages__history"></div>
-                 <div class="fallback"></div>
-               </div>
-               <form class="message_form">
-                 <input type="text" class="message_form__input" placeholder="Type a message" />
-                 <button class="message_form__button" type="submit">
-                   Enter
-                 </button>
-               </form>
-         </section>
-
             <!-- Game Section -->
-            <section class="w-full max-w-4xl">
+            <section class="w-full">
                 <div id="game" class="bg-white rounded-xl p-6 play">
                     <!-- Players Info -->
                     <div class="mb-4 flex justify-between items-center">
@@ -100,13 +98,19 @@
                             <!-- Player count will be updated dynamically -->
                         </div>
                     </div>
+                    <div class="chat">
+                        <ul id="chat-messages"></ul>
+                        <form id="chat-form" action="">
+                        <input id="chat-input" autocomplete="off" /><button class="chat-button">Envoyer</button>
+                        </form>
+                    </div>
 
                     <!-- Canvas Container -->
                     <div class="relative w-full aspect-square">
                         <canvas id="canvas" 
-                            class="w-full h-full rounded-lg border border-gray-200"
-                            width="200" 
-                            height="200">
+                            class="mx-auto rounded-lg border border-gray-200"
+                            width="500px" 
+                            height="500px">
                         </canvas>
                     </div>
                 </div>
@@ -125,7 +129,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>
