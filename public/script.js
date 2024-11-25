@@ -11,8 +11,8 @@ const form = document.querySelector('#form')
 const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
 const colorInput = document.getElementById('color');
+const socketI = io(`https://pixel-art-ynov.onrender.com/`);     
 
-const socketI = io(wsUrl);     
 const chatMessages = document.getElementById('chat-messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
