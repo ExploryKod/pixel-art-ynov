@@ -1,7 +1,7 @@
 const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
-
+const socket = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -32,7 +32,15 @@ function broadcastPlayersList() {
 function heartbeat() {
     this.isAlive = true;
 }
+const io = socket(server);
 
+io.on("connection", function (socket) {
+  console.log("Made socket connection");
+});
+
+io.on("disconnect", function (socket) {
+  console.log("User disconnected");
+});
 wss.on('connection', (ws) => {
     ws.isAlive = true;
     ws.on('pong', heartbeat);
@@ -103,6 +111,7 @@ wss.on('connection', (ws) => {
 
          const existingPixel = pixels[data.id];
          if (existingPixel) {
+            console.log("over pixel");
              wss.clients.forEach(client => {
                  if (client.readyState === WebSocket.OPEN && existingPixel.player.id === client.player.id) {
                      client.send(JSON.stringify({
@@ -124,11 +133,11 @@ wss.on('connection', (ws) => {
         if (action === 'draw') {
             console.log("draw data", drawData)
 
-            const existingPixel = pixels[data.id];
+            // const existingPixel = pixels[data.id];
 
-            if (existingPixel) {
-                console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
-            }
+            // if (existingPixel) {
+            //     console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
+            // }
 
             pixels[data.id] = drawData;
             wss.clients.forEach(client => {
@@ -170,7 +179,7 @@ const interval = setInterval(() => {
         ws.isAlive = false;
         ws.ping();
     });
-}, 30000); 
+}, 3000); 
 
 wss.on('close', () => {
     clearInterval(interval);

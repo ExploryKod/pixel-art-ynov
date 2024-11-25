@@ -44,12 +44,12 @@
                 x-data="{ message: 'I ❤️ Pixel Art' }" 
                 x-text="message">
             </h1>
-            <p class="text-gray-600">Créez votre art pixel par pixel</p>
+            <p class="text-gray-600">Partez en guerre pixel par pixel</p>
         </header>
 
         <!-- Main Content -->
         <main class="flex flex-col items-center justify-center gap-8">
-            <h2 class="text-center hidden player-title text-lg text-gray-800">Joueurs :</h2>
+            <h2 class="text-center hidden player-title text-lg text-gray-800">Guerriers :</h2>
             <div id="player-template" class="flex items-center gap-2">
             
             </div>
@@ -75,6 +75,19 @@
                 </form>
             </section>
 
+            <section>
+                <div class="inbox__messages">
+                 <div class="messages__history"></div>
+                 <div class="fallback"></div>
+               </div>
+               <form class="message_form">
+                 <input type="text" class="message_form__input" placeholder="Type a message" />
+                 <button class="message_form__button" type="submit">
+                   Enter
+                 </button>
+               </form>
+         </section>
+
             <!-- Game Section -->
             <section class="w-full max-w-4xl">
                 <div id="game" class="bg-white rounded-xl p-6 play">
@@ -92,22 +105,27 @@
                     <div class="relative w-full aspect-square">
                         <canvas id="canvas" 
                             class="w-full h-full rounded-lg border border-gray-200"
-                            width="500" 
-                            height="500">
+                            width="200" 
+                            height="200">
                         </canvas>
                     </div>
                 </div>
             </section>
+
+         
         </main>
+
+
 
         <!-- Footer -->
         <footer class="mt-12 text-center text-gray-600">
-            <p class="text-sm">&copy; 2024 Pixel War - Créé avec ❤️</p>
+            <p class="text-sm">&copy; 2024 Pixel War </p>
         </footer>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>
