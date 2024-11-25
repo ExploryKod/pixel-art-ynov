@@ -12,7 +12,7 @@ const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
 const colorInput = document.getElementById('color');
 
-const socketI = io("http://localhost:4080");     
+const socketI = io(wsUrl);     
 const chatMessages = document.getElementById('chat-messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
