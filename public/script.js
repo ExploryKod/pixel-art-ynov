@@ -12,26 +12,27 @@ const subText = document.querySelector(".subtext")
 const pseudoInput = document.getElementById('pseudo');
 const colorInput = document.getElementById('color');
 const socketI = io(`https://pixel-art-ynov.onrender.com/`);     
-
+//const socketI = io("http://localhost:4080");  
+/* Chat */
 const chatMessages = document.getElementById('chat-messages');
 const chatForm = document.getElementById('chat-form');
 const chatInput = document.getElementById('chat-input');
 
 chatForm.addEventListener('submit', function(e) {
-e.preventDefault();
-if (chatInput.value) {
-    socketI.emit('chat message', chatInput.value);
-    chatInput.value = '';
-}
+    e.preventDefault();
+    if (chatInput.value) {
+        socketI.emit('chat message', chatInput.value);
+        chatInput.value = '';
+    }
 });
 
 socketI.on('chat message', function(msg) {
-var item = document.createElement('li');
-item.textContent = msg;
-chatMessages.appendChild(item);
-window.scrollTo(0, document.body.scrollHeight);
+    let item = document.createElement('li');
+    item.textContent = msg;
+    chatMessages.appendChild(item);
 });
 
+/* Pixel war */
 form.addEventListener('submit', (e) => {
     e.preventDefault();
     const username = pseudoInput.value.trim();
@@ -75,18 +76,8 @@ ws.onmessage = (event) => {
                 const { x, y, color, player } = response.data;
                 ctx.fillStyle = color;
                 ctx.fillRect(x, y, 10, 10);
-                console.log("data on placement", response.data)
-                console.log(`Pixel placed by ${player.username} at (${x}, ${y}) with color ${player.color}`);
-
-    Toastify({
-                    text: `Pixel placed by ${player.username} at ${x}, ${y}`,
-        duration: 3000,
-        gravity: "top",
-        position: 'right',
-        style: {
-                        background: "linear-gradient(to right, #ff5f6d, #ffc371)",
-                    }
-                }).showToast();
+                console.log("placement du pixel - données: ", response.data)
+                console.log(`Pixel placé par ${player.username} à (${x}, ${y}), couleur: ${player.color}`);
 
             case 'init':
                 // (Re)initialise le plateau de jeu
@@ -206,7 +197,7 @@ canvas.addEventListener('click', (event) => {
     };
 
     if (ws.readyState === WebSocket.OPEN) {
-        console.log("send pixel data", pixelData);
+        console.log("données pixel ", pixelData);
         ws.send(JSON.stringify(pixelData));
     } else {
         Toastify({
@@ -223,7 +214,7 @@ canvas.addEventListener('click', (event) => {
 });
 
 ws.onclose = (event) => {
-    console.log('WebSocket is closed:', event.reason);
+    console.log('Le websoket a du fermé:', event.reason);
     Toastify({
         text: "Fin de la connexion au jeu",
         duration: 3000,

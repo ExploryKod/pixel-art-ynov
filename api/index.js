@@ -5,29 +5,12 @@ const socket = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const path = require('path');
-
 const { Server } = require("socket.io");
-const io = new Server(server, {
-    cors: {
-      origin: ["http://localhost:4080", "https://pixel-art-ynov.onrender.com/"]
-    }
-  });
-
-app.use(express.static('public'));
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-  });
-
-  io.on('connection', (socket) => {
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg);
-    });
-  });
+const io = new Server(server, { cors: { origin: ["https://pixel-art-ynov.onrender.com/"]} });
+const path = require('path');
 
 app.use(express.static('public'));
 const connectedPlayers = new Map();
-
 let pixels = {};
 
 function broadcastPlayersList() {
@@ -130,7 +113,7 @@ wss.on('connection', (ws) => {
                      }));
                  }
              });
-             console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
+             console.log(`Effacer le pixel ${data.id} (x: ${data.x}, y: ${data.y}) par ${data.player}`);
          }
 
 
@@ -143,12 +126,6 @@ wss.on('connection', (ws) => {
         if (action === 'draw') {
             console.log("draw data", drawData)
 
-            // const existingPixel = pixels[data.id];
-
-            // if (existingPixel) {
-            //     console.log(`Overwriting pixel at ${data.id} (x: ${data.x}, y: ${data.y}) by ${data.player}`);
-            // }
-
             pixels[data.id] = drawData;
             wss.clients.forEach(client => {
                 if (client.readyState === WebSocket.OPEN) {
@@ -156,7 +133,7 @@ wss.on('connection', (ws) => {
                 }
             });
         }
-        console.log(`Pixel placed by ${data.player} with color ${data.color}:`, data);
+        console.log(`Pixel ${data.color} placé par ${data.player}:`, data);
     });
 
     ws.on('close', () => {
@@ -199,6 +176,12 @@ wss.on('close', () => {
 app.get('/', (req, res) => {
     res.sendFile('index.html', {root: path.join(__dirname, 'public')});
   })
+
+  io.on('connection', (socket) => {
+    socket.on('chat message', (msg) => {
+      io.emit('chat message', msg);
+    });
+  });
 
 const PORT = process.env.PORT || 4080;
 server.listen(PORT, () => {
